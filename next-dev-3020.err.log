@@ -1,0 +1,133 @@
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (128kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ⚠ ./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'appreciatePostAction' is not exported from '@/app/actions/social' (imported as 'appreciatePostAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'appreciatePostAction' is not exported from '@/app/actions/social' (imported as 'appreciatePostAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+ ⚠ ./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'appreciatePostAction' is not exported from '@/app/actions/social' (imported as 'appreciatePostAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'appreciatePostAction' is not exported from '@/app/actions/social' (imported as 'appreciatePostAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+ ⚠ ./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'appreciatePostAction' is not exported from '@/app/actions/social' (imported as 'appreciatePostAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'appreciatePostAction' is not exported from '@/app/actions/social' (imported as 'appreciatePostAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+
+./app/feed/feed-post.tsx
+Attempted import error: 'removePostAppreciationAction' is not exported from '@/app/actions/social' (imported as 'removePostAppreciationAction').
+
+Import trace for requested module:
+./app/feed/feed-post.tsx
+[31m[auth][error][0m CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+    at Module.callback (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/actions/callback/index.js:246:23)
+    at async AuthInternal (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/lib/index.js:70:24)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/next-auth/node_modules/@auth/core/index.js:130:34)
+    at async signIn (webpack-internal:///(rsc)/./node_modules/next-auth/lib/actions.js:53:17)
+    at async loginAction (webpack-internal:///(rsc)/./app/actions/auth.ts:95:9)
+    at async executeActionAndPrepareForRender (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:34:3117)
+    at async C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:34:958
+    at async handleAction (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:32:22949)
+    at async renderToHTMLOrFlightImpl (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:39:39993)
+    at async doRender (webpack-internal:///(rsc)/./node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Flogin%2Fpage&page=%2Flogin%2Fpage&appPaths=%2Flogin%2Fpage&pagePath=private-next-app-dir%2Flogin%2Fpage.tsx&appDir=C%3A%5CUsers%5Cuser%5COneDrive%5CDesktop%5Cabc%5Capp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=C%3A%5CUsers%5Cuser%5COneDrive%5CDesktop%5Cabc&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:424:28)
+    at async AppPageRouteModule.handleResponse (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\compiled\next-server\app-page.runtime.dev.js:41:57305)
+    at async handleResponse (webpack-internal:///(rsc)/./node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Flogin%2Fpage&page=%2Flogin%2Fpage&appPaths=%2Flogin%2Fpage&pagePath=private-next-app-dir%2Flogin%2Fpage.tsx&appDir=C%3A%5CUsers%5Cuser%5COneDrive%5CDesktop%5Cabc%5Capp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=C%3A%5CUsers%5Cuser%5COneDrive%5CDesktop%5Cabc&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:576:32)
+    at async handler (webpack-internal:///(rsc)/./node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Flogin%2Fpage&page=%2Flogin%2Fpage&appPaths=%2Flogin%2Fpage&pagePath=private-next-app-dir%2Flogin%2Fpage.tsx&appDir=C%3A%5CUsers%5Cuser%5COneDrive%5CDesktop%5Cabc%5Capp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=C%3A%5CUsers%5Cuser%5COneDrive%5CDesktop%5Cabc&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:954:20)
+    at async DevServer.renderToResponseWithComponentsImpl (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\base-server.js:1422:9)
+    at async DevServer.renderPageComponent (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\base-server.js:1514:32)
+    at async DevServer.pipeImpl (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\base-server.js:1025:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\next-server.js:393:17)
+    at async DevServer.handleRequestImpl (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\base-server.js:916:17)
+    at async C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\dev\next-dev-server.js:400:20
+    at async Span.traceAsyncFn (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\dev\next-dev-server.js:396:24)
+    at async invokeRender (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\lib\router-server.js:240:21)
+    at async handleRequest (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\lib\router-server.js:437:24)
+    at async requestHandlerImpl (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\lib\router-server.js:485:13)
+    at async Server.requestListener (C:\Users\user\OneDrive\Desktop\abc\node_modules\next\dist\server\lib\start-server.js:226:13)

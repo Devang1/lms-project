@@ -1,0 +1,27 @@
+
+> star-study-point-lms@1.0.0 dev
+> next dev -p 3015
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3015
+   - Network:      http://192.168.1.5:3015
+   - Environments: .env
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ✓ Ready in 1848ms
+ ✓ Compiled /middleware in 323ms (282 modules)
+ ✓ Compiled in 369ms (282 modules)
+ ✓ Compiled in 179ms (282 modules)
+ ✓ Compiled in 197ms (282 modules)
+ ✓ Compiled in 144ms (282 modules)
+ ✓ Compiled in 127ms (282 modules)
+ ✓ Compiled in 191ms (282 modules)
+ ✓ Compiled in 141ms (282 modules)
+ ✓ Compiled in 203ms (282 modules)
+ ✓ Compiled in 154ms (282 modules)
+ ✓ Compiled in 114ms (282 modules)
+ ✓ Compiled in 115ms (282 modules)
+ ✓ Compiled in 105ms (282 modules)
+ ✓ Compiled in 87ms (282 modules)

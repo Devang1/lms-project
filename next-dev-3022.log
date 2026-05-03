@@ -1,0 +1,19 @@
+
+> star-study-point-lms@1.0.0 dev
+> next dev --port 3022
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3022
+   - Network:      http://192.168.1.5:3022
+   - Environments: .env
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ✓ Ready in 1865ms
+ ✓ Compiled /middleware in 362ms (282 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 3.2s (855 modules)
+ GET / 200 in 3974ms
+ GET /login 200 in 3986ms
+ ✓ Compiled in 358ms (254 modules)

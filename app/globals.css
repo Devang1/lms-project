@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 210 24% 98%;
+  --foreground: 222 38% 9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 38% 9%;
+  --primary: 224 76% 48%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 173 74% 38%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 214 24% 92%;
+  --muted-foreground: 218 14% 38%;
+  --accent: 42 96% 56%;
+  --accent-foreground: 222 38% 9%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 22% 86%;
+  --input: 214 22% 86%;
+  --ring: 224 76% 48%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 222 38% 7%;
+  --foreground: 210 24% 96%;
+  --card: 222 34% 10%;
+  --card-foreground: 210 24% 96%;
+  --primary: 220 91% 62%;
+  --primary-foreground: 222 38% 8%;
+  --secondary: 173 78% 42%;
+  --secondary-foreground: 222 38% 8%;
+  --muted: 224 28% 16%;
+  --muted-foreground: 218 16% 68%;
+  --accent: 42 96% 58%;
+  --accent-foreground: 222 38% 8%;
+  --destructive: 0 72% 54%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 224 26% 20%;
+  --input: 224 26% 20%;
+  --ring: 220 91% 62%;
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.5) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.glass {
+  @apply border bg-card/80 shadow-sm backdrop-blur-xl;
+}
