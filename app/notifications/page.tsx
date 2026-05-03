@@ -104,7 +104,7 @@ export default async function NotificationsPage() {
                     </p>
 
                     {!notification.read ? (
-                      <Badge variant="destructive">
+                      <Badge variant="accent">
                         New
                       </Badge>
                     ) : null}
