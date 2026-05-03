@@ -175,21 +175,31 @@ export async function uploadLessonMaterialAction(
     const bytes = await uploadedFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const uploadResult = await new Promise<any>((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: "course-materials",
-          resource_type: "auto"
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
+    const uploadResult = await new Promise<{
+  secure_url: string;
+  resource_type: string;
+}>((resolve, reject) => {
+  const stream = cloudinary.uploader.upload_stream(
+    {
+      folder: "course-materials",
+      resource_type: "auto"
+    },
+    (error, result) => {
+      if (error) {
+        reject(error);
+      } else if (result) {
+        resolve({
+          secure_url: result.secure_url,
+          resource_type: result.resource_type
+        });
+      } else {
+        reject(new Error("Cloudinary upload failed"));
+      }
+    }
+  );
 
-      stream.end(buffer);
-    });
-
+  stream.end(buffer);
+});
     if (uploadResult.resource_type === "video") {
       finalVideoUrl = uploadResult.secure_url;
     } else {

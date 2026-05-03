@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Camera, Flame, HelpCircle, Plus, Trophy, Zap, Filter, X } from "lucide-react";
+import { Camera, Flame, HelpCircle, Trophy, Zap, Filter, X } from "lucide-react";
 import { DoubtComposer } from "@/app/feed/doubt-composer";
 import { FeedDoubt } from "@/app/feed/feed-doubt";
 import { FeedPost } from "@/app/feed/feed-post";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
+import Image from "next/image";
 export const dynamic = "force-dynamic";
 
 export default async function FeedPage({
@@ -71,7 +71,20 @@ export default async function FeedPage({
     })
   ]);
 
-  let feedItems: any[] = [];
+  type FeedItem =
+  | {
+      type: "doubt";
+      createdAt: Date;
+      isResolved: boolean;
+      doubt: typeof doubts[number];
+    }
+  | {
+      type: "post";
+      createdAt: Date;
+      post: typeof posts[number];
+    };
+
+let feedItems: FeedItem[] = [];
 
   if (filter === "doubts") {
     feedItems = doubts.map((doubt) => ({
@@ -301,7 +314,7 @@ export default async function FeedPage({
                   doubt={{
                     ...item.doubt,
                     createdAt: item.doubt.createdAt.toISOString(),
-                    answers: item.doubt.answers.map((answer: any) => ({
+                    answers: item.doubt.answers.map((answer) => ({
                       ...answer,
                       createdAt: answer.createdAt.toISOString()
                     }))
@@ -315,7 +328,7 @@ export default async function FeedPage({
                     userReaction:
                       item.post.reactions?.[0]?.type ?? null,
                     createdAt: item.post.createdAt.toISOString(),
-                    comments: item.post.comments.map((comment: any) => ({
+                    comments: item.post.comments.map((comment) => ({
                       ...comment,
                       createdAt: comment.createdAt.toISOString()
                     }))
@@ -449,12 +462,13 @@ function Avatar({
 }) {
   return (
     <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-tr from-accent via-primary to-secondary p-0.5">
-      <div className="flex size-full items-center justify-center overflow-hidden rounded-full bg-background text-sm font-semibold">
+      <div className="relative flex size-full items-center justify-center overflow-hidden rounded-full bg-background text-sm font-semibold">
         {image ? (
-          <img
+          <Image
             src={image}
             alt=""
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
           />
         ) : (
           name.charAt(0)
