@@ -25,21 +25,6 @@ export const authConfig = {
 
   secret: process.env.AUTH_SECRET,
 
-  cookies: {
-    sessionToken: {
-      name:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-authjs.session-token"
-          : "authjs.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production"
-      }
-    }
-  },
-
   providers: [
     Credentials({
       credentials: {
@@ -96,7 +81,7 @@ export const authConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        token.role = user.role ?? "STUDENT";
       }
 
       return token;
@@ -104,8 +89,9 @@ export const authConfig = {
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as "ADMIN" | "TEACHER" | "STUDENT";
+        session.user.id = (token.id as string) ?? "";
+        session.user.role =
+          (token.role as "ADMIN" | "TEACHER" | "STUDENT") ?? "STUDENT";
       }
 
       return session;
