@@ -198,13 +198,13 @@ export function NotesClient() {
             <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-semibold">Download your notes</p>
-                <p className="text-sm text-muted-foreground">Export as high-quality PDF or DOC file.</p>
+                <p className="text-sm text-muted-foreground">Export as high-quality  DOC file.</p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button onClick={exportAsPDF} size="lg" disabled={isExporting}>
+                {/* <Button onClick={exportAsPDF} size="lg" disabled={isExporting}>
                   <Printer size={18} className="mr-2" /> 
                   {isExporting ? "Generating PDF..." : "Download PDF"}
-                </Button>
+                </Button> */}
                 <Button onClick={exportDoc} size="lg" variant="secondary">
                   <Download size={18} className="mr-2" /> Download DOC
                 </Button>

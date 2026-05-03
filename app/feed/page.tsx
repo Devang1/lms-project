@@ -46,10 +46,10 @@ export default async function FeedPage() {
   });
 
   return (
-    <AppShell role={session?.user.role ?? "STUDENT"} showMobileHeader={false} className="bg-muted/30">
+    <AppShell role={session?.user.role ?? "STUDENT"} showMobileHeader={true} className="bg-muted/30">
       <div className="mx-auto grid max-w-6xl gap-5 xl:grid-cols-[minmax(0,620px)_320px]">
         <main className="min-w-0">
-          <div className="sticky top-0 z-30 -mx-4 border-b bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-b-md sm:border sm:border-t-0 lg:top-0">
+          {/* <div className="sticky top-0 z-30 -mx-4 border-b bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-b-md sm:border sm:border-t-0 lg:top-0">
             <div className="flex items-center gap-3">
               <Link href="/feed" className="flex min-w-0 flex-1 items-center gap-2">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
@@ -64,9 +64,9 @@ export default async function FeedPage() {
                 <Link href="/feed/create"><Plus size={21} /></Link>
               </Button>
             </div>
-          </div>
+          </div> */}
 
-          <section className="sticky top-[61px] z-20 -mx-4 border-b bg-background/95 px-2 py-1 backdrop-blur sm:top-[73px] sm:mx-0 sm:mt-4 sm:grid sm:grid-cols-3 sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-0 lg:top-[73px]">
+          <section className="sticky top-[61px] z-20 -mx-4 border-b bg-background/95 px-2 py-1 backdrop-blur sm:top-[60px] sm:mx-0 sm:mt-8 sm:grid sm:grid-cols-3 sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-0 lg:top-[61px]">
             <div className="grid grid-cols-3 gap-1 sm:contents">
               <HighlightCard
                 icon={Flame}

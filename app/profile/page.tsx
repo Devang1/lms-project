@@ -34,7 +34,7 @@ export default async function ProfilePage() {
     <AppShell role={session?.user.role ?? "STUDENT"}>
       <div className="mx-auto grid max-w-5xl gap-5 pb-20 lg:pb-0">
         <section className="overflow-hidden rounded-md border bg-card shadow-sm">
-          <div className="h-28 bg-gradient-to-r from-primary via-secondary to-accent" />
+          <div className="h-28 bg-gradient-to-r from-[#020617] via-[#111827] to-[#1e293b]" />
           <div className="px-4 pb-5 sm:px-6">
             <div className="-mt-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex items-end gap-4">
@@ -50,6 +50,11 @@ export default async function ProfilePage() {
                 </div>
               </div>
               <Button asChild variant="secondary"><Link href="/feed#create">Create post</Link></Button>
+              {session?.user.role === "TEACHER" && (
+                <Button asChild variant="default">
+                  <Link href="/teacher">Teacher Ops</Link>
+                </Button>
+              )}
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">

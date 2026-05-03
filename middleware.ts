@@ -1,28 +1,41 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-const roleRoutes = [
-  { prefix: "/admin", role: "ADMIN" },
-  { prefix: "/teacher", role: "TEACHER" },
-  { prefix: "/student", role: "STUDENT" }
-] as const;
+const roleRoutes = {
+  "/admin": "ADMIN",
+  "/teacher": "TEACHER",
+  "/student": "STUDENT",
+} as const;
 
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const protectedRoute = roleRoutes.find((route) => pathname.startsWith(route.prefix));
 
-  if (!req.auth?.user) {
+  // Lightweight session/token check (far smaller than importing full auth config)
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  });
+
+  // Original login protection
+  if (!token) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (protectedRoute && req.auth.user.role !== protectedRoute.role && req.auth.user.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/feed", req.url));
+  // Preserve original role-based access logic
+  for (const [prefix, role] of Object.entries(roleRoutes)) {
+    if (
+      pathname.startsWith(prefix) &&
+      token.role !== role &&
+      token.role !== "ADMIN"
+    ) {
+      return NextResponse.redirect(new URL("/feed", req.url));
+    }
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
@@ -38,6 +51,6 @@ export const config = {
     "/leaderboards/:path*",
     "/profile/:path*",
     "/notifications/:path*",
-    "/courses/:path*"
-  ]
+    "/courses/:path*",
+  ],
 };

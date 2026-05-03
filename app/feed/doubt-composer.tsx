@@ -104,7 +104,7 @@ export function DoubtComposer({ compact = false }: DoubtComposerProps) {
         <Input name="subject" placeholder="Subject" required />
         <Input name="title" placeholder="Short doubt title" required />
       </div>
-      <Textarea name="body" placeholder="Explain where you are stuck" required className="min-h-24 resize-none" />
+      <Textarea name="body" placeholder="Explain where you are stuck" required minLength={8} className="min-h-24 resize-none" />
       {previewUrl ? (
         <div className="relative overflow-hidden rounded-md border bg-muted">
           {/* eslint-disable-next-line @next/next/no-img-element -- Local selected-file previews are browser object URLs. */}
