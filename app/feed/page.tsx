@@ -20,7 +20,7 @@ export default async function FeedPage({
   const filter = params.filter ?? "posts";
 
   const session = await auth();
-
+console.log("SESSION:", session);
   const [posts, currentUser, topStudents, topStreak, doubts] = await Promise.all([
     prisma.post.findMany({
       include: {
@@ -29,7 +29,7 @@ export default async function FeedPage({
           include: { user: true },
           orderBy: { createdAt: "asc" }
         },
-        reactions: session?.user.id
+        reactions: session?.user?.id
           ? {
               where: { userId: session.user.id },
               select: { type: true }
@@ -37,12 +37,12 @@ export default async function FeedPage({
           : false
       },
       orderBy: { createdAt: "desc" },
-      take: 40
+      take: 15
     }),
 
-    session?.user.id
+    session?.user?.id
       ? prisma.user.findUnique({
-          where: { id: session.user.id },
+          where: { id: session.user?.id },
           include: { streak: true }
         })
       : null,
@@ -67,7 +67,7 @@ export default async function FeedPage({
         }
       },
       orderBy: [{ isResolved: "asc" }, { createdAt: "desc" }],
-      take: 20
+      take: 10
     })
   ]);
 
