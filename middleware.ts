@@ -10,25 +10,36 @@ const roleRoutes = {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Lightweight session/token check (far smaller than importing full auth config)
+  // Allow public auth pages
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/api/auth")
+  ) {
+    return NextResponse.next();
+  }
+
+  // Stable JWT token validation
   const token = await getToken({
     req,
-    secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+    secret: process.env.AUTH_SECRET,
   });
 
-  // Original login protection
+  // Redirect unauthenticated users
   if (!token) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Preserve original role-based access logic
+  // Safe role fallback
+  const userRole = (token.role as string) ?? "STUDENT";
+
+  // Role-based route protection
   for (const [prefix, role] of Object.entries(roleRoutes)) {
     if (
       pathname.startsWith(prefix) &&
-      token.role !== role &&
-      token.role !== "ADMIN"
+      userRole !== role &&
+      userRole !== "ADMIN"
     ) {
       return NextResponse.redirect(new URL("/feed", req.url));
     }
