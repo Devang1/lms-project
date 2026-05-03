@@ -1,5 +1,5 @@
 "use server";
-
+import { v2 as cloudinary } from "cloudinary";
 import { revalidatePath } from "next/cache";
 import { startOfDay } from "date-fns";
 import { z } from "zod";
@@ -14,12 +14,32 @@ const courseSchema = z.object({
   subject: z.string().min(2),
   visibility: z.enum(["PUBLIC", "PRIVATE"])
 });
-
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
 const lessonSchema = z.object({
-  title: z.string().min(3),
-  content: z.string().min(10),
-  videoUrl: z.preprocess((value) => value === "" ? undefined : value, z.string().url().optional()),
-  materialUrl: z.preprocess((value) => value === "" ? undefined : value, z.string().url().optional())
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  content: z.string().min(3, "Content is required"),
+
+  // External optional video link
+  videoUrl: z.preprocess(
+    (value) => {
+      if (!value || String(value).trim() === "") return undefined;
+      return String(value);
+    },
+    z.string().url("Invalid video URL").optional()
+  ),
+
+  // External optional material link
+  materialUrl: z.preprocess(
+    (value) => {
+      if (!value || String(value).trim() === "") return undefined;
+      return String(value);
+    },
+    z.string().url("Invalid material URL").optional()
+  )
 });
 
 const courseMessageSchema = z.object({
@@ -98,22 +118,91 @@ export async function updateActiveTopicAction(courseId: string, formData: FormDa
   revalidatePath(`/courses/${course.slug}`);
 }
 
-export async function uploadLessonMaterialAction(courseId: string, formData: FormData) {
+export async function uploadLessonMaterialAction(
+  courseId: string,
+  formData: FormData
+) {
   const session = await auth();
-  if (session?.user.role !== "TEACHER" && session?.user.role !== "ADMIN") throw new Error("Unauthorized");
+
+  if (
+    session?.user.role !== "TEACHER" &&
+    session?.user.role !== "ADMIN"
+  ) {
+    throw new Error("Unauthorized");
+  }
 
   const course = await prisma.course.findUnique({
     where: { id: courseId },
-    select: { teacherId: true, slug: true, _count: { select: { lessons: true } } }
+    select: {
+      teacherId: true,
+      slug: true,
+      _count: { select: { lessons: true } }
+    }
   });
 
   if (!course) throw new Error("Course not found");
-  if (session.user.role !== "ADMIN" && course.teacherId !== session.user.id) throw new Error("Unauthorized");
 
-  const parsed = lessonSchema.parse(Object.fromEntries(formData));
+  if (
+    session.user.role !== "ADMIN" &&
+    course.teacherId !== session.user.id
+  ) {
+    throw new Error("Unauthorized");
+  }
+
+  // SAFE PARSING
+  const parsed = lessonSchema.safeParse({
+    title: formData.get("title"),
+    content: formData.get("content"),
+    videoUrl: formData.get("videoUrl"),
+    materialUrl: formData.get("materialUrl")
+  });
+
+  if (!parsed.success) {
+    console.error("Validation Error:", parsed.error.flatten());
+    throw new Error(
+      Object.values(parsed.error.flatten().fieldErrors)
+        .flat()
+        .join(", ")
+    );
+  }
+
+  let finalMaterialUrl = parsed.data.materialUrl;
+  let finalVideoUrl = parsed.data.videoUrl;
+
+  const uploadedFile = formData.get("materialFile") as File | null;
+
+  if (uploadedFile && uploadedFile.size > 0) {
+    const bytes = await uploadedFile.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const uploadResult = await new Promise<any>((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: "course-materials",
+          resource_type: "auto"
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+
+      stream.end(buffer);
+    });
+
+    if (uploadResult.resource_type === "video") {
+      finalVideoUrl = uploadResult.secure_url;
+    } else {
+      finalMaterialUrl = uploadResult.secure_url;
+    }
+  }
+
   await prisma.lesson.create({
     data: {
-      ...parsed,
+      title: parsed.data.title,
+      content: parsed.data.content,
+      videoUrl: finalVideoUrl || null,
+      materialUrl: finalMaterialUrl || null,
       courseId,
       order: course._count.lessons + 1
     }
@@ -124,7 +213,6 @@ export async function uploadLessonMaterialAction(courseId: string, formData: For
   revalidatePath("/teacher/courses");
   revalidatePath(`/courses/${course.slug}`);
 }
-
 async function getOrCreateCourseChat(courseId: string) {
   const existing = await prisma.courseChat.findFirst({ where: { courseId }, orderBy: { createdAt: "asc" } });
   if (existing) return existing;

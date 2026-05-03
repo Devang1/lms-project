@@ -199,45 +199,152 @@ function Materials({ course, canUpload }: Pick<CourseHubProps, "course" | "canUp
       <Card>
         <CardHeader>
           <CardTitle>Study materials</CardTitle>
-          <CardDescription>Notes, PDFs, videos, assignments, practice sets, and saved resources.</CardDescription>
+          <CardDescription>
+            Notes, PDFs, videos, assignments, practice sets, and saved resources.
+          </CardDescription>
         </CardHeader>
+
         <CardContent className="grid gap-3">
           {course.lessons.map((lesson) => (
             <article className="rounded-md border p-4" key={lesson.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
+                <div className="max-w-3xl">
                   <Badge variant="outline">Module {lesson.order}</Badge>
-                  <h2 className="mt-2 font-semibold">{lesson.title}</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">{lesson.content}</p>
+
+                  <h2 className="mt-2 font-semibold">
+                    {lesson.title}
+                  </h2>
+
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {lesson.content}
+                  </p>
                 </div>
+
                 <div className="flex flex-wrap gap-2">
-                  {lesson.videoUrl ? <Button asChild variant="secondary" size="sm"><Link href={lesson.videoUrl}><PlayCircle size={16} /> Video</Link></Button> : null}
-                  {lesson.materialUrl ? <Button asChild variant="outline" size="sm"><Link href={lesson.materialUrl}><FileText size={16} /> Material</Link></Button> : null}
+                  {/* VIDEO LINK */}
+                  {lesson.videoUrl ? (
+                    <Button asChild variant="secondary" size="sm">
+                      <a
+                        href={lesson.videoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <PlayCircle size={16} />
+                        Watch Video
+                      </a>
+                    </Button>
+                  ) : null}
+
+                  {/* MATERIAL VIEW */}
+                  {lesson.materialUrl ? (
+                    <>
+                      <Button asChild variant="outline" size="sm">
+                        <a
+                          href={lesson.materialUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FileText size={16} />
+                          View Material
+                        </a>
+                      </Button>
+
+                      {/* DOWNLOAD */}
+                      <Button asChild variant="default" size="sm">
+                        <a
+                          href={`${lesson.materialUrl}?fl_attachment=true`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Upload size={16} />
+                          Download
+                        </a>
+                      </Button>
+                    </>
+                  ) : null}
                 </div>
               </div>
             </article>
           ))}
-          {!course.lessons.length ? <p className="rounded-md border p-4 text-sm text-muted-foreground">No materials uploaded yet.</p> : null}
+
+          {!course.lessons.length ? (
+            <p className="rounded-md border p-4 text-sm text-muted-foreground">
+              No materials uploaded yet.
+            </p>
+          ) : null}
         </CardContent>
       </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Upload material</CardTitle>
-          <CardDescription>Teachers can add links to PDFs, images, docs, videos, and assignment notes.</CardDescription>
+          <CardDescription>
+            Teachers can add links to PDFs, images, docs, videos, and assignment notes.
+          </CardDescription>
         </CardHeader>
+
         <CardContent>
           {canUpload ? (
-            <form action={uploadLessonMaterialAction.bind(null, course.id)} className="grid gap-3">
-              <Input name="title" placeholder="Module or note title" required />
-              <Textarea name="content" placeholder="Description, assignment, or class notes" required />
-              <Input name="videoUrl" placeholder="Video URL" />
-              <Input name="materialUrl" placeholder="PDF / image / doc URL" />
-              <Button type="submit"><Upload size={16} /> Upload resource</Button>
+            <form
+              action={uploadLessonMaterialAction.bind(null, course.id)}
+              method="POST"
+              encType="multipart/form-data"
+              className="grid gap-4"
+            >
+              <Input
+                name="title"
+                placeholder="Module or note title"
+                required
+              />
+
+              <Textarea
+                name="content"
+                placeholder="Description, assignment, or class notes"
+                required
+              />
+
+              <Input
+                name="videoUrl"
+                placeholder="External Video URL (optional)"
+              />
+
+              <Input
+                name="materialUrl"
+                placeholder="External Material URL (optional)"
+              />
+
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Upload File
+                </label>
+
+                <Input
+                  type="file"
+                  name="materialFile"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.mp4,.mov,.avi"
+                />
+
+                <p className="text-xs text-muted-foreground">
+                  Supported: PDF, DOC, DOCX, PPT, Images, Videos
+                </p>
+              </div>
+
+              <Button type="submit" className="w-full">
+                <Upload size={16} />
+                Submit Module
+              </Button>
             </form>
           ) : (
             <div className="grid gap-3 text-sm text-muted-foreground">
-              <p className="rounded-md bg-muted/60 p-3">Upload access is reserved for teachers and admins.</p>
-              <Button asChild variant="secondary"><Link href="/ai-notes">Create personal AI notes</Link></Button>
+              <p className="rounded-md bg-muted/60 p-3">
+                Upload access is reserved for teachers and admins.
+              </p>
+
+              <Button asChild variant="secondary">
+                <Link href="/ai-notes">
+                  Create personal AI notes
+                </Link>
+              </Button>
             </div>
           )}
         </CardContent>
@@ -245,7 +352,6 @@ function Materials({ course, canUpload }: Pick<CourseHubProps, "course" | "canUp
     </div>
   );
 }
-
 function CourseChat({ course }: Pick<CourseHubProps, "course">) {
   const announcements = course.chatMessages.filter((message) => message.isPinned);
   const messages = course.chatMessages.filter((message) => !message.isPinned);
