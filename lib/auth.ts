@@ -25,6 +25,21 @@ export const authConfig = {
 
   secret: process.env.AUTH_SECRET,
 
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-authjs.session-token"
+          : "authjs.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production"
+      }
+    }
+  },
+
   providers: [
     Credentials({
       credentials: {
@@ -52,6 +67,7 @@ export const authConfig = {
         });
 
         if (!user || !user.passwordHash) {
+          console.log("User not found:", username);
           return null;
         }
 
@@ -61,6 +77,7 @@ export const authConfig = {
         );
 
         if (!validPassword) {
+          console.log("Invalid password:", username);
           return null;
         }
 
@@ -69,8 +86,7 @@ export const authConfig = {
           name: user.name,
           email: user.email,
           image: user.image,
-          role: user.role,
-          username: user.username
+          role: user.role
         };
       }
     })
