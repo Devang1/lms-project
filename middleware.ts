@@ -10,7 +10,6 @@ const roleRoutes = {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow public auth pages
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/api/auth")
@@ -18,23 +17,22 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Stable JWT token validation
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
   });
 
-  // Redirect unauthenticated users
+  console.log("TOKEN:", token);
+  console.log("PATH:", pathname);
+
   if (!token) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Safe role fallback
   const userRole = (token.role as string) ?? "STUDENT";
 
-  // Role-based route protection
   for (const [prefix, role] of Object.entries(roleRoutes)) {
     if (
       pathname.startsWith(prefix) &&
@@ -50,6 +48,8 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    "/feed",
+    "/feed/:path*",
     "/admin/:path*",
     "/teacher/:path*",
     "/student/:path*",
@@ -57,7 +57,6 @@ export const config = {
     "/ai-tools/:path*",
     "/daily-question/:path*",
     "/doubts/:path*",
-    "/feed/:path*",
     "/weekly-tests/:path*",
     "/leaderboards/:path*",
     "/profile/:path*",
