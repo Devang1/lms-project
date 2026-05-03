@@ -12,47 +12,86 @@ const credentialsSchema = z.object({
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
-  pages: { signIn: "/login" },
+
+  session: {
+    strategy: "jwt"
+  },
+
+  pages: {
+    signIn: "/login"
+  },
+
+  trustHost: true,
+
+  secret: process.env.AUTH_SECRET,
+
   providers: [
     Credentials({
       credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" }
+        username: {
+          label: "Username",
+          type: "text"
+        },
+        password: {
+          label: "Password",
+          type: "password"
+        }
       },
+
       async authorize(credentials) {
         const parsed = credentialsSchema.safeParse(credentials);
+
         if (!parsed.success) return null;
 
-        const user = await prisma.user.findUnique({ where: { username: parsed.data.username.toLowerCase() } });
-        if (!user?.passwordHash) return null;
+        const username = parsed.data.username.toLowerCase();
 
-        const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
-        if (!valid) return null;
+        const user = await prisma.user.findUnique({
+          where: {
+            username
+          }
+        });
+
+        if (!user || !user.passwordHash) {
+          return null;
+        }
+
+        const validPassword = await bcrypt.compare(
+          parsed.data.password,
+          user.passwordHash
+        );
+
+        if (!validPassword) {
+          return null;
+        }
 
         return {
           id: user.id,
           name: user.name,
           email: user.email,
           image: user.image,
-          role: user.role
+          role: user.role,
+          username: user.username
         };
       }
     })
   ],
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
       }
+
       return token;
     },
+
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as "ADMIN" | "TEACHER" | "STUDENT";
       }
+
       return session;
     }
   }
