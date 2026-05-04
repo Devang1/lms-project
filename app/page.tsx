@@ -28,9 +28,6 @@ export default function Home() {
               <Button asChild size="lg">
                 <Link href="/login">Open platform <ArrowRight size={18} /></Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/login">Staff login</Link>
-              </Button>
             </div>
           </div>
           <div className="grid content-center gap-4">

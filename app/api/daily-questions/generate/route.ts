@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { generateDailyQuestion } from "@/lib/ai/gemini";
 
 export async function POST() {
-  // OPTIONAL: allow manual trigger only for teacher/admin
   const session = await auth();
 
   const isManualRequest = !!session?.user;
@@ -20,19 +19,35 @@ export async function POST() {
     );
   }
 
-  // ✅ UTC-safe date
+  // ✅ STRICT UTC NORMALIZED DATE (IMPORTANT FIX)
   const now = new Date();
-  const date = new Date(
+
+  const todayStart = new Date(
     Date.UTC(
       now.getUTCFullYear(),
       now.getUTCMonth(),
-      now.getUTCDate()
+      now.getUTCDate(),
+      0, 0, 0, 0
     )
   );
 
-  // ✅ Prevent duplicate generation
+  const tomorrowStart = new Date(todayStart);
+  tomorrowStart.setUTCDate(tomorrowStart.getUTCDate() + 1);
+
+  // 🔥 HARD CLEAN: DELETE EVERYTHING NOT EXACTLY TODAY
+  await prisma.dailyQuestion.deleteMany({
+    where: {
+      NOT: {
+        date: todayStart
+      }
+    }
+  });
+
+  // 🔁 DOUBLE CHECK (extra safety)
   const alreadyExists = await prisma.dailyQuestion.findFirst({
-    where: { date }
+    where: {
+      date: todayStart
+    }
   });
 
   if (alreadyExists) {
@@ -41,14 +56,14 @@ export async function POST() {
     });
   }
 
-  // ✅ Fetch all courses with active topics
+  // 📚 Fetch courses
   const courses = await prisma.course.findMany({
     where: {
       activeTopic: { not: null }
     }
   });
 
-  // ✅ Generate questions in parallel
+  // ⚡ Generate questions
   const created = await Promise.all(
     courses.map(async (course) => {
       const aiQuestion = await generateDailyQuestion(
@@ -58,7 +73,10 @@ export async function POST() {
       return prisma.dailyQuestion.create({
         data: {
           courseId: course.id,
-          date,
+
+          // ✅ ALWAYS NORMALIZED DATE
+          date: todayStart,
+
           topic: course.activeTopic!,
           prompt: aiQuestion.prompt,
           options: aiQuestion.options,

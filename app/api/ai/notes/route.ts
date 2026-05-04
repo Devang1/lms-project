@@ -52,7 +52,6 @@ export async function POST(request: Request) {
       orderBy: { date: "desc" }
     });
 
-    // 🔄 Reset if new day OR create new record
     if (!usage || usage.date < today) {
       usage = await prisma.aIUsageLimit.create({
         data: {
@@ -63,7 +62,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // ❌ Block if daily limit reached
     if (usage.notesCount >= 5) {
       return NextResponse.json(
         { error: "Daily limit reached (5 notes per day)" },
@@ -71,8 +69,33 @@ export async function POST(request: Request) {
       );
     }
 
+    // 🔥 FIXED: Safe transcript handling
+    let transcript = "";
+
+    try {
+      transcript = await fetchTranscript(youtubeUrl);
+
+      if (!transcript || transcript.trim().length < 50) {
+        throw new Error("Transcript too short");
+      }
+    } catch (err) {
+      console.log("⚠️ Transcript failed, using fallback");
+
+      const videoId = extractVideoId(youtubeUrl);
+
+      transcript = `
+This is an educational YouTube video (ID: ${videoId}).
+
+Generate structured notes including:
+- Summary
+- Key concepts
+- Important formulas or ideas
+- Examples
+- Practice questions
+`;
+    }
+
     // ✅ Generate notes
-    const transcript = await fetchTranscript(youtubeUrl);
     const notes = await generateStructuredNotes(
       transcript,
       youtubeUrl

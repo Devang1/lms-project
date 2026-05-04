@@ -22,7 +22,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
       tests: { orderBy: { startsAt: "asc" }, take: 8 },
       dailyQuestions: {
         orderBy: { date: "desc" },
-        take: 7,
+        take: 1,
         include: { attempts: session?.user.id ? { where: { userId: session.user.id }, orderBy: { submittedAt: "desc" }, take: 1 } : false }
       },
       chats: {
