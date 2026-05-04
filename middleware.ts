@@ -64,9 +64,7 @@
 //     "/courses/:path*",
 //   ],
 // };
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
+import { NextRequest, NextResponse } from "next/server";
 
 const roleRoutes = {
   "/admin": "ADMIN",
@@ -75,7 +73,7 @@ const roleRoutes = {
 } as const;
 
 export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, origin } = req.nextUrl;
 
   // allow public routes
   if (
@@ -85,9 +83,22 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const session = await auth();
+  // 🔥 call backend to get session
+  const res = await fetch(`${origin}/api/auth/session`, {
+    headers: {
+      cookie: req.headers.get("cookie") || "",
+    },
+  });
 
-  // ❗ Fix: use session instead of token
+  let session = null;
+
+  try {
+    session = await res.json();
+  } catch {
+    session = null;
+  }
+
+  // ❗ if no session → redirect
   if (!session?.user) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
@@ -96,6 +107,7 @@ export async function middleware(req: NextRequest) {
 
   const userRole = session.user.role ?? "STUDENT";
 
+  // role protection
   for (const [prefix, role] of Object.entries(roleRoutes)) {
     if (
       pathname.startsWith(prefix) &&
