@@ -770,7 +770,7 @@ export default function TeacherResultsPage() {
                                 className="border-t p-2 space-y-2 sm:p-5 sm:space-y-3"
                               >
                                 <div>
-                                  <p className="text-[9px] font-medium text-muted-foreground sm:text-sm">Student's Answer:</p>
+                                  <p className="text-[9px] font-medium text-muted-foreground sm:text-sm">Student&apos;s Answer:</p>
                                   <p className="mt-0.5 rounded-md bg-muted/30 p-2 text-[9px] sm:mt-1 sm:p-3 sm:text-sm">
                                     {String(question.yourAnswer || "Not answered")}
                                   </p>
