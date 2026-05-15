@@ -142,7 +142,7 @@ export default function TeacherResultsPage() {
   };
 
   const filteredAndSortedResults = useMemo(() => {
-    let filtered = results.filter((result) => {
+    const filtered = results.filter((result) => {
       const matchesSearch =
         result.user.name.toLowerCase().includes(search.toLowerCase()) ||
         result.user.email.toLowerCase().includes(search.toLowerCase());
@@ -538,7 +538,14 @@ export default function TeacherResultsPage() {
 
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
+                    onChange={(e) =>
+                        setSortBy(
+                            e.target.value as
+                            | "name"
+                            | "score"
+                            | "risk"
+                        )
+                        }
                     className="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-primary sm:h-10 sm:px-3 sm:text-sm"
                   >
                     <option value="risk">Sort: Risk</option>
