@@ -61,3 +61,16 @@ body {
 .glass {
   @apply border bg-card/80 shadow-sm backdrop-blur-xl;
 }
+
+.exam-secure-surface,
+.exam-secure-surface * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.exam-secure-surface input,
+.exam-secure-surface textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}

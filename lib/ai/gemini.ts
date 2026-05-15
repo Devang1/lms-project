@@ -49,6 +49,34 @@ Return strict JSON: prompt, options array of 4 strings, answer, solution. Keep i
   return parseGeminiJson(await generateText(prompt, process.env.GEMINI_MODEL_DAILY));
 }
 
+export async function generateExamQuestions(input: { prompt: string; topic: string; count: number }) {
+  const prompt = `Create a full anti-cheat friendly exam from this teacher request.
+Return strict JSON only with this shape:
+{
+  "questions": [
+    {
+      "kind": "MCQ" | "FIND_MISTAKE" | "MISSING_STEP" | "ORDER" | "SCENARIO",
+      "prompt": "question text",
+      "options": ["option or step 1", "option or step 2", "option or step 3", "option or step 4"],
+      "answer": "exact correct option, or for ORDER use the exact options joined with | in the correct order",
+      "explanation": "short teacher-quality explanation",
+      "scenario": "optional scenario context"
+    }
+  ]
+}
+Rules:
+- Create exactly ${input.count} questions.
+- Mix conceptual, mistake-finding, missing-step, ordering, and scenario reasoning where appropriate.
+- Keep every option concise and unambiguous.
+- For ORDER questions, options must be the shuffled steps, while answer must be the correct order joined by |.
+- Avoid plain recall when a reasoning version is possible.
+Topic: ${input.topic}
+Teacher prompt: ${input.prompt.slice(0, 5000)}`;
+
+  const data = parseGeminiJson(await generateText(prompt, process.env.GEMINI_MODEL_DAILY)) as { questions?: unknown };
+  return normalizeExamQuestions(data.questions, input.count);
+}
+
 async function generateText(prompt: string, modelName?: string) {
   try {
     const result = await getModel(modelName).generateContent(prompt);
@@ -112,4 +140,23 @@ function stringifyNotesField(value: unknown) {
 function normalizeStringArray(value: unknown) {
   if (!Array.isArray(value)) return [];
   return value.map((item) => (typeof item === "string" ? item : JSON.stringify(item)));
+}
+
+function normalizeExamQuestions(value: unknown, count: number) {
+  if (!Array.isArray(value)) throw new Error("Gemini did not return exam questions.");
+  return value.slice(0, count).map((item, index) => {
+    const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
+    const kind = typeof record.kind === "string" ? record.kind : "MCQ";
+    const options = normalizeStringArray(record.options).filter(Boolean).slice(0, 6);
+    if (options.length < 2) throw new Error(`Generated question ${index + 1} needs at least two options.`);
+
+    return {
+      kind: ["MCQ", "FIND_MISTAKE", "MISSING_STEP", "ORDER", "SCENARIO"].includes(kind) ? kind : "MCQ",
+      prompt: String(record.prompt ?? "").trim(),
+      options,
+      answer: String(record.answer ?? "").trim(),
+      explanation: String(record.explanation ?? record.solution ?? "").trim(),
+      scenario: typeof record.scenario === "string" ? record.scenario.trim() : ""
+    };
+  }).filter((question) => question.prompt && question.answer && question.explanation);
 }

@@ -55,6 +55,37 @@ const dailyQuestionEditSchema = z.object({
   solution: z.string().min(3)
 });
 
+const testQuestionKinds = [
+  "MCQ",
+  "FIND_MISTAKE",
+  "MISSING_STEP",
+  "ORDER",
+  "DYNAMIC_NUMERIC",
+  "SCENARIO"
+] as const;
+
+const courseTestSchema = z.object({
+  title: z.string().min(3),
+  topic: z.string().min(2),
+  durationMin: z.coerce.number().int().min(5).max(240),
+  status: z.enum(["DRAFT", "SCHEDULED", "ACTIVE", "COMPLETED"]).default("ACTIVE"),
+  startsAt: z.string().optional(),
+  endsAt: z.string().optional(),
+  kind: z.enum(testQuestionKinds),
+  prompt: z.string().min(8),
+  options: z.string().optional(),
+  answer: z.string().optional(),
+  explanation: z.string().min(3),
+  marks: z.coerce.number().int().min(1).max(20).default(4),
+  negative: z.coerce.number().int().min(0).max(10).default(0),
+  scenario: z.string().optional(),
+  dynamicVariable: z.string().optional(),
+  dynamicMin: z.coerce.number().int().optional(),
+  dynamicMax: z.coerce.number().int().optional(),
+  dynamicMultiplier: z.coerce.number().optional(),
+  dynamicOffset: z.coerce.number().optional()
+});
+
 export async function createCourseAction(formData: FormData) {
   const session = await auth();
   if (session?.user.role !== "TEACHER" && session?.user.role !== "ADMIN") throw new Error("Unauthorized");
@@ -382,4 +413,79 @@ export async function updateCourseDailyQuestionAction(courseId: string, formData
   revalidatePath("/teacher/courses");
   revalidatePath("/daily-question");
   revalidatePath(`/courses/${course.slug}`);
+}
+
+export async function createCourseTestAction(courseId: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user) throw new Error("Unauthorized");
+  const course = await assertCourseManager(courseId, session.user.id, session.user.role);
+  const parsed = courseTestSchema.parse(Object.fromEntries(formData));
+  const now = new Date();
+  const startsAt = parsed.startsAt ? new Date(parsed.startsAt) : now;
+  const endsAt = parsed.endsAt ? new Date(parsed.endsAt) : new Date(startsAt.getTime() + parsed.durationMin * 60 * 1000);
+  const optionLines = (parsed.options ?? "")
+    .split(/\r?\n/)
+    .map((option) => option.trim())
+    .filter(Boolean)
+    .slice(0, 8);
+  const isOrder = parsed.kind === "ORDER";
+  const isNumeric = parsed.kind === "DYNAMIC_NUMERIC";
+
+  if (!isNumeric && optionLines.length < 2) throw new Error("Add at least two options or steps.");
+  if (!isOrder && !isNumeric && !parsed.answer?.trim()) throw new Error("Add the correct answer.");
+  if (isNumeric && (parsed.dynamicMin === undefined || parsed.dynamicMax === undefined || !parsed.dynamicVariable)) {
+    throw new Error("Dynamic numerical questions need a variable name and min/max values.");
+  }
+
+  const questionOptions = isNumeric
+    ? {
+      kind: parsed.kind,
+      dynamicNumerical: {
+        template: parsed.prompt,
+        variable: parsed.dynamicVariable,
+        min: parsed.dynamicMin,
+        max: parsed.dynamicMax,
+        multiplier: parsed.dynamicMultiplier ?? 1,
+        offset: parsed.dynamicOffset ?? 0,
+        tolerance: 0
+      }
+    }
+    : getManualQuestionOptions(parsed.kind, optionLines, parsed.scenario);
+
+  await prisma.test.create({
+    data: {
+      courseId,
+      title: parsed.title,
+      topic: parsed.topic,
+      status: parsed.status,
+      startsAt,
+      endsAt,
+      durationMin: parsed.durationMin,
+      questions: {
+        create: {
+          type: isNumeric ? "NUMERIC" : "MCQ",
+          prompt: parsed.prompt,
+          options: questionOptions,
+          answer: isOrder ? optionLines.join("|") : parsed.answer?.trim() || "0",
+          explanation: parsed.explanation,
+          marks: parsed.marks,
+          negative: parsed.negative
+        }
+      }
+    }
+  });
+
+  revalidatePath("/teacher");
+  revalidatePath("/teacher/courses");
+  revalidatePath("/weekly-tests");
+  revalidatePath(`/courses/${course.slug}`);
+}
+
+function getManualQuestionOptions(kind: string, optionLines: string[], scenario?: string) {
+  const output: Record<string, string | string[]> = { kind };
+  if (["MCQ", "MISSING_STEP", "SCENARIO"].includes(kind)) output.choices = optionLines;
+  if (kind === "FIND_MISTAKE") output.mistakeOptions = optionLines;
+  if (kind === "ORDER") output.steps = optionLines;
+  if (scenario?.trim()) output.scenario = scenario.trim();
+  return output;
 }

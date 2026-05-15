@@ -39,7 +39,7 @@ type CourseHubProps = {
     teacher: { name: string; bio: string | null };
     enrollments: { id: string; progress: number; user: { name: string; xp: number; heroTag: string } }[];
     lessons: { id: string; title: string; content: string; videoUrl: string | null; materialUrl: string | null; order: number }[];
-    tests: { id: string; title: string; topic: string; startsAt: string; durationMin: number; status: string }[];
+    tests: { id: string; title: string; topic: string; startsAt: string; durationMin: number; status: string; results: { id: string }[] }[];
     dailyQuestions: {
       id: string;
       topic: string;
@@ -238,16 +238,6 @@ function Materials({ course, canUpload }: Pick<CourseHubProps, "course" | "canUp
                   {/* MATERIAL VIEW */}
                   {lesson.materialUrl ? (
                     <>
-                      <Button asChild variant="outline" size="sm">
-                        <a
-                          href={lesson.materialUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <FileText size={16} />
-                          View Material
-                        </a>
-                      </Button>
 
                       {/* DOWNLOAD */}
                       <Button asChild variant="default" size="sm">
@@ -509,8 +499,16 @@ function WeeklyTests({ tests }: { tests: CourseHubProps["course"]["tests"] }) {
               <h2 className="mt-2 font-semibold">{test.title}</h2>
               <p className="text-sm text-muted-foreground">{test.topic}</p>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <CalendarClock size={16} /> {new Date(test.startsAt).toLocaleString()}
+            <div className="grid gap-2 sm:justify-items-end">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CalendarClock size={16} /> {new Date(test.startsAt).toLocaleString()}
+              </div>
+              <Button asChild size="sm" variant={test.results.length ? "secondary" : "default"}>
+                <Link href={`/weekly-tests?testId=${test.id}`}>
+                  <ShieldCheck size={16} />
+                  {test.results.length ? "View result" : "Start test"}
+                </Link>
+              </Button>
             </div>
           </div>
         ))}

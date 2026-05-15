@@ -1,4 +1,4 @@
-import { Check, Clock, Plus, Users } from "lucide-react";
+import { AlertTriangle, Check, Clock, MonitorCheck, Plus, ShieldAlert, Users } from "lucide-react";
 import { createManagedUserAction } from "@/app/actions/auth";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -8,17 +8,46 @@ import { Textarea } from "@/components/ui/textarea";
 import { StatCard } from "@/components/stat-card";
 import { createCourseAction, reviewApplicationAction, updateActiveTopicAction } from "@/app/actions/courses";
 import { auth } from "@/lib/auth";
+import { eventLabels, getRiskClass, getRiskLevel, getSuspicionScore } from "@/lib/exams/anti-cheat";
 import { prisma } from "@/lib/prisma";
-
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function TeacherDashboard() {
   const session = await auth();
   const courses = await prisma.course.findMany({
     where: { teacherId: session!.user.id },
-    include: { enrollments: true, applications: { where: { status: "PENDING" }, include: { user: true } }, tests: true }
+    include: {
+      enrollments: { include: { user: true } },
+      applications: { where: { status: "PENDING" }, include: { user: true } },
+      tests: { include: { results: { include: { user: true } } } }
+    }
   });
   const pending = courses.flatMap((course) => course.applications.map((application) => ({ ...application, course })));
+  const testIds = courses.flatMap((course) => course.tests.map((test) => test.id));
+  const studentIds = [...new Set(courses.flatMap((course) => course.enrollments.map((enrollment) => enrollment.userId)))];
+  const suspiciousEvents = await prisma.suspiciousActivity.findMany({
+    where: { userId: { in: studentIds }, testId: { in: testIds } },
+    include: { user: true },
+    orderBy: { createdAt: "desc" },
+    take: 100
+  });
+  const monitoringRows = studentIds.map((studentId) => {
+    const enrollment = courses.flatMap((course) => course.enrollments).find((item) => item.userId === studentId);
+    const events = suspiciousEvents.filter((event) => event.userId === studentId);
+    const submissions = courses.flatMap((course) => course.tests.flatMap((test) => test.results)).filter((result) => result.userId === studentId);
+    const score = getSuspicionScore(events);
+
+    return {
+      student: enrollment?.user,
+      events,
+      score,
+      submissions,
+      fullscreenExits: events.filter((event) => event.event === "FULLSCREEN_EXIT").length,
+      tabSwitches: events.filter((event) => event.event === "TAB_SWITCH" || event.event === "APP_SWITCH").length
+    };
+  }).filter((row) => row.student);
 
   return (
     <AppShell role="TEACHER">
@@ -32,6 +61,72 @@ export default async function TeacherDashboard() {
           <StatCard label="Students" value={courses.reduce((sum, course) => sum + course.enrollments.length, 0)} icon={Users} />
           <StatCard label="Pending applications" value={pending.length} icon={Clock} />
         </div>
+        <Card>
+  <CardHeader>
+    <div className="flex items-center justify-between">
+      <div>
+        <CardTitle>Students</CardTitle>
+
+        <CardDescription>
+          Students enrolled in your courses.
+        </CardDescription>
+      </div>
+
+      <Users className="text-accent" size={24} />
+    </div>
+  </CardHeader>
+
+  <CardContent className="grid gap-3">
+    {monitoringRows.map((row) => (
+      <div
+        key={row.student!.id}
+        className="flex items-center justify-between rounded-md border p-4"
+      >
+        <div>
+          <p className="font-medium">
+            {row.student!.name}
+          </p>
+
+          <p className="text-sm text-muted-foreground">
+            @{row.student!.username}
+          </p>
+        </div>
+      </div>
+    ))}
+
+    {!monitoringRows.length ? (
+      <p className="text-sm text-muted-foreground">
+        No students enrolled yet.
+      </p>
+    ) : null}
+  </CardContent>
+</Card>
+        <Card>
+  <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+    <div>
+      <p className="text-sm text-muted-foreground">
+        Anti-cheat analytics
+      </p>
+
+      <h2 className="text-2xl font-semibold">
+        Test Results & Monitoring
+      </h2>
+
+      <p className="mt-1 text-sm text-muted-foreground">
+        View student submissions, cheating logs,
+        fullscreen exits, app switches, and
+        suspicious activity reports.
+      </p>
+    </div>
+
+    <Button asChild>
+      <Link href="/teacher/results">
+        <ShieldAlert className="mr-2 h-4 w-4" />
+        Open Results Dashboard
+      </Link>
+    </Button>
+  </CardContent>
+</Card>
         <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
           <Card>
             <CardHeader>

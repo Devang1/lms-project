@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Check, ChevronDown, Flame, Megaphone, MessageCircle, Plus, RefreshCw, Upload, Users } from "lucide-react";
+import { BookOpen, Check, ChevronDown, ClipboardList, Flame, Megaphone, MessageCircle, Plus, RefreshCw, Upload, Users } from "lucide-react";
 import { createCourseAction, generateCourseDailyQuestionAction, reviewApplicationAction, sendCourseAnnouncementAction, sendCourseChatMessageAction, updateActiveTopicAction, updateCourseDailyQuestionAction } from "@/app/actions/courses";
 import { MaterialUploadForm } from "@/app/teacher/courses/material-upload-form";
 import { AppShell } from "@/components/app-shell";
@@ -26,7 +26,7 @@ export default async function TeacherCoursesPage() {
         orderBy: { createdAt: "asc" },
         take: 1
       },
-      tests: true,
+      tests: { include: { questions: true, results: true }, orderBy: { startsAt: "desc" } },
       dailyQuestions: {
         orderBy: { date: "desc" },
         take: 1,
@@ -170,6 +170,27 @@ export default async function TeacherCoursesPage() {
                         </div>
                       </div>
                     ) : null}
+                  </CourseSection>
+
+                  <CourseSection icon={ClipboardList} title="Tests and exams">
+                    <Button asChild className="w-full sm:w-fit">
+                      <Link href={`/teacher/tests?courseId=${course.id}`}><ClipboardList size={16} /> Tests and exams</Link>
+                    </Button>
+                    <div className="mt-4 grid gap-2">
+                      {course.tests.map((test) => (
+                        <div className="grid gap-2 rounded-md bg-background p-3 text-sm sm:grid-cols-[1fr_auto]" key={test.id}>
+                          <div>
+                            <p className="font-medium">{test.title}</p>
+                            <p className="text-xs text-muted-foreground">{test.topic} · {test.durationMin} min · {test.questions.length} question(s)</p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="outline">{test.status}</Badge>
+                            <Badge variant="secondary">{test.results.length} submissions</Badge>
+                          </div>
+                        </div>
+                      ))}
+                      {!course.tests.length ? <p className="text-sm text-muted-foreground">No tests created for this course yet.</p> : null}
+                    </div>
                   </CourseSection>
 
                   <CourseSection icon={Users} title="Students and applications">

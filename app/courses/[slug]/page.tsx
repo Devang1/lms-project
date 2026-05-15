@@ -19,7 +19,13 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         orderBy: { progress: "desc" }
       },
       lessons: { orderBy: { order: "asc" } },
-      tests: { orderBy: { startsAt: "asc" }, take: 8 },
+      tests: {
+        orderBy: { startsAt: "asc" },
+        take: 8,
+        include: {
+          results: session?.user.id ? { where: { userId: session.user.id }, orderBy: { submittedAt: "desc" }, take: 1 } : false
+        }
+      },
       dailyQuestions: {
         orderBy: { date: "desc" },
         take: 1,
@@ -65,7 +71,11 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           teacher: course.teacher,
           enrollments: course.enrollments,
           lessons: course.lessons,
-          tests: course.tests.map((test) => ({ ...test, startsAt: test.startsAt.toISOString() })),
+          tests: course.tests.map((test) => ({
+            ...test,
+            startsAt: test.startsAt.toISOString(),
+            results: test.results.map((result) => ({ id: result.id }))
+          })),
           dailyQuestions: course.dailyQuestions.map((question) => ({
             ...question,
             date: question.date.toISOString(),
