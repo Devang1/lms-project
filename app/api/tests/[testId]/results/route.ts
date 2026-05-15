@@ -106,7 +106,7 @@ export async function GET(
           correctAnswer: question.answer,
           explanation: question.explanation,
           yourAnswer:
-            (result.answers as any)?.[question.id] || null,
+            (result.answers as Record<string, string>)?.[question.id] || null,
           earned: 0,
           marks: question.marks
         }))
